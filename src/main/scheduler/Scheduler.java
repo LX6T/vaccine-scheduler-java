@@ -32,12 +32,12 @@ public class Scheduler {
         System.out.println("> create_caregiver <username> <password>");
         System.out.println("> login_patient <username> <password>");
         System.out.println("> login_caregiver <username> <password>");
-        System.out.println("> search_caregiver_schedule <date>");  // TODO: implement search_caregiver_schedule (Part 2)
-        System.out.println("> reserve <date> <vaccine>");  // TODO: implement reserve (Part 2)
+        System.out.println("> search_caregiver_schedule <date>");
+        System.out.println("> reserve <date> <vaccine>");
         System.out.println("> upload_availability <date>");
         System.out.println("> cancel <appointment_id>");  // TODO: implement cancel (extra credit)
         System.out.println("> add_doses <vaccine> <number>");
-        System.out.println("> show_appointments");  // TODO: implement show_appointments (Part 2)
+        System.out.println("> show_appointments");
         System.out.println("> logout");
         System.out.println("> quit");
         System.out.println();
@@ -443,7 +443,53 @@ public class Scheduler {
     }
 
     private static void showAppointments(String[] tokens) {
-        // TODO: Part 2
+        // showAppointments
+        // check 1: check if there is a user currently logged in
+        if (currentCaregiver == null && currentPatient == null) {
+            System.out.println("Please login first");
+            return;
+        }
+        // check 2: the length for tokens need to be exactly 1 to include all information (with the operation name)
+        if (tokens.length != 1) {
+            System.out.println("Please try again");
+            return;
+        }
+
+        ConnectionManager cm = new ConnectionManager();
+        Connection con = cm.createConnection();
+
+        try {
+            if (currentCaregiver != null) {
+                String selectAppointments = "SELECT A.Id, A.VaccineName, A.Time, A.PatientName FROM Appointments AS A WHERE A.CaregiverName = ? ORDER BY A.Id";
+                PreparedStatement statement = con.prepareStatement(selectAppointments);
+                statement.setString(1, currentCaregiver.getUsername());
+                ResultSet resultSet = statement.executeQuery();
+                while (resultSet.next()) {
+                    System.out.println(
+                            resultSet.getString(1) + " " +
+                                    resultSet.getString(2) + " " +
+                                    resultSet.getString(3) + " " +
+                                    resultSet.getString(4));
+                }
+            } else {
+                String selectAppointments = "SELECT A.Id, A.VaccineName, A.Time, A.CaregiverName FROM Appointments AS A WHERE A.PatientName = ? ORDER BY A.Id";
+                PreparedStatement statement = con.prepareStatement(selectAppointments);
+                statement.setString(1, currentPatient.getUsername());
+                ResultSet resultSet = statement.executeQuery();
+                while (resultSet.next()) {
+                    System.out.println(
+                            resultSet.getString(1) + " " +
+                                    resultSet.getString(2) + " " +
+                                    resultSet.getString(3) + " " +
+                                    resultSet.getString(4));
+                }
+            }
+        } catch (SQLException e) {
+            System.out.println("Please try again");
+            e.printStackTrace();
+        } finally {
+            cm.closeConnection();
+        }
     }
 
     private static void logout(String[] tokens) {
