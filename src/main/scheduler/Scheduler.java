@@ -28,9 +28,9 @@ public class Scheduler {
         System.out.println();
         System.out.println("Welcome to the COVID-19 Vaccine Reservation Scheduling Application!");
         System.out.println("*** Please enter one of the following commands ***");
-        System.out.println("> create_patient <username> <password>");  //TODO: implement create_patient (Part 1)
+        System.out.println("> create_patient <username> <password>");
         System.out.println("> create_caregiver <username> <password>");
-        System.out.println("> login_patient <username> <password>");  // TODO: implement login_patient (Part 1)
+        System.out.println("> login_patient <username> <password>");
         System.out.println("> login_caregiver <username> <password>");
         System.out.println("> search_caregiver_schedule <date>");  // TODO: implement search_caregiver_schedule (Part 2)
         System.out.println("> reserve <date> <vaccine>");  // TODO: implement reserve (Part 2)
@@ -38,7 +38,7 @@ public class Scheduler {
         System.out.println("> cancel <appointment_id>");  // TODO: implement cancel (extra credit)
         System.out.println("> add_doses <vaccine> <number>");
         System.out.println("> show_appointments");  // TODO: implement show_appointments (Part 2)
-        System.out.println("> logout");  // TODO: implement logout (Part 2)
+        System.out.println("> logout");
         System.out.println("> quit");
         System.out.println();
 
@@ -251,7 +251,44 @@ public class Scheduler {
     }
 
     private static void searchCaregiverSchedule(String[] tokens) {
-        // TODO: Part 2
+        // searchCaregiverSchedule <date>
+        // check 1: check if there is a user currently logged in
+        if (currentCaregiver == null && currentPatient == null) {
+            System.out.println("Please login first");
+            return;
+        }
+        // check 2: the length for tokens need to be exactly 2 to include all information (with the operation name)
+        if (tokens.length != 2) {
+            System.out.println("Please try again");
+            return;
+        }
+        String date = tokens[1];
+
+        ConnectionManager cm = new ConnectionManager();
+        Connection con = cm.createConnection();
+
+        String selectUsernames = "SELECT A.Username FROM Availabilities AS A WHERE A.Time = ? ORDER BY A.Username";
+        String selectVaccines = "SELECT * FROM Vaccines";
+        try {
+            PreparedStatement statement = con.prepareStatement(selectUsernames);
+            Date d = Date.valueOf(date);
+            statement.setDate(1, d);
+            ResultSet resultSet = statement.executeQuery();
+            while (resultSet.next()) {
+                System.out.println(resultSet.getString(1));
+            }
+
+            statement = con.prepareStatement(selectVaccines);
+            resultSet = statement.executeQuery();
+            while (resultSet.next()) {
+                System.out.println(resultSet.getString(1) + " " + resultSet.getString(2));
+            }
+        } catch (SQLException e) {
+            System.out.println("Please try again");
+            e.printStackTrace();
+        } finally {
+            cm.closeConnection();
+        }
     }
 
     private static void reserve(String[] tokens) {
