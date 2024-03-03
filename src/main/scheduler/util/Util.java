@@ -48,4 +48,37 @@ public class Util {
 
         return Arrays.copyOf(bytes, i + 1);
     }
+
+    public static String passwordCheck(String password) {
+        if (password.length() < 8) {
+            return "Password needs at least 8 characters";
+        }
+        int lowercaseCount = 0;
+        int uppercaseCount = 0;
+        int numCount = 0;
+        boolean hasSpecialChar = false;
+        char[] p = password.toCharArray();
+        for (char c : p) {
+            if (c >= 'a' && c <= 'z') {
+                lowercaseCount += 1;
+            } else if (c >= 'A' && c <= 'Z') {
+                uppercaseCount += 1;
+            } else if (c >= '0' && c <= '9') {
+                numCount += 1;
+            } else if (c == '!' || c == '@' || c == '#' || c == '?') {
+                hasSpecialChar = true;
+            }
+        }
+        if (lowercaseCount == 0) {
+            return "Password needs to contain at least one lowercase letter";
+        } else if (uppercaseCount == 0) {
+            return "Password needs to contain at least one uppercase letter";
+        } else if (numCount == 0) {
+            return "Password needs to contain at least one number";
+        } else if (!hasSpecialChar) {
+            return "Password needs to contain at least special character, from '!', '@', '#', '?'";
+        } else {
+            return "STRONG";
+        }
+    }
 }

@@ -106,6 +106,11 @@ public class Scheduler {
             System.out.println("Username taken, try again!");
             return;
         }
+        String pCheckMessage = Util.passwordCheck(password);
+        if (!pCheckMessage.equals("STRONG")) {
+            System.out.println(pCheckMessage + ", try again!");
+            return;
+        }
         byte[] salt = Util.generateSalt();
         byte[] hash = Util.generateHash(password, salt);
         // create the patient
@@ -132,6 +137,11 @@ public class Scheduler {
         // check 2: check if the username has been taken already
         if (usernameExistsCaregiver(username)) {
             System.out.println("Username taken, try again!");
+            return;
+        }
+        String pCheckMessage = Util.passwordCheck(password);
+        if (!pCheckMessage.equals("STRONG")) {
+            System.out.println(pCheckMessage + ", try again!");
             return;
         }
         byte[] salt = Util.generateSalt();
